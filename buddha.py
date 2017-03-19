@@ -1,4 +1,3 @@
-from PIL import Image
 from PIL import ImageGrab
 from motions import *
 import sys
@@ -45,7 +44,7 @@ def check_potions():
             elif i == 3:
                 b = 0
                 time.sleep(1)
-                beholder()
+                behold()
             start_times[i] = time.time()
 
 
@@ -179,7 +178,7 @@ def first_level():
             stop()
             time.sleep(.04)
             turn_right()
-            hyperbody()
+            hyper()
             direction = 'right'
 
             for i in range(1):
@@ -200,7 +199,7 @@ def first_level():
             for j in range(3): att()
 
             # Finished, hb and move on
-            hyperbody()
+            hyper()
             stance()
             move_right()
             if debug: print 'Next lap'
@@ -210,7 +209,7 @@ def first_level():
             stop()
             time.sleep(.04)
             turn_left()
-            hyperbody()
+            hyper()
             direction = 'left'
 
             for i in range(1):
@@ -231,8 +230,8 @@ def first_level():
             for j in range(3): att()
 
             # Finished, booster and move on
-            booster()
-            hyperbody()
+            boost()
+            hyper()
             stance()
             move_left()
             if debug: print 'Next lap'

@@ -1,4 +1,3 @@
-from PIL import Image
 from PIL import ImageGrab
 from motions import *
 import sys
@@ -154,7 +153,7 @@ def first_level():
                 update_screenshot()
 
             # Finished, booster and move on
-            booster()
+            boost()
             move_right()
             if debug: print 'Next lap'
 
@@ -178,7 +177,7 @@ def first_level():
                 update_screenshot()
 
             # Finished, booster and move on
-            booster()
+            boost()
             move_left()
             if debug: print 'Next lap'
 

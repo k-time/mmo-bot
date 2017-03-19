@@ -2,6 +2,7 @@ from key_press import *
 import random
 from datetime import datetime
 
+
 def close_app():
     stop()
     time.sleep(1)
@@ -16,6 +17,7 @@ def close_app():
     KeyUp('esc')
     print 'App closed at ' + str(datetime.now())
 
+
 def quit_game():
     stop()
     time.sleep(1)
@@ -25,6 +27,7 @@ def quit_game():
     time.sleep(.1)
     KeyPress('\n')
     time.sleep(3)
+
 
 def say(line):
     stop()
@@ -36,64 +39,74 @@ def say(line):
     KeyPress('\n')
     time.sleep(.5)
 
-def booster():
+
+def boost():
     time.sleep(.05)
     SlowKeyPress('`')
     time.sleep(.6)
 
-def hyperbody():
+
+def hyper():
     time.sleep(.05)
     SlowKeyPress('s')
     time.sleep(.3)
+
 
 def stance():
     time.sleep(.3)
     SlowKeyPress('end')
     time.sleep(.3)
 
-def beholder():
+
+def behold():
     time.sleep(.5)
     SlowKeyPress('f')
     time.sleep(.3)
+
 
 def speed_pot():
     time.sleep(.03)
     SlowKeyPress('9')
     time.sleep(.03)
 
+
 def att_pot():
     time.sleep(.03)
     SlowKeyPress('8')
     time.sleep(.03)
+
 
 def acc_pot():
     time.sleep(.03)
     SlowKeyPress('7')
     time.sleep(.03)
 
+
 def feed():
     time.sleep(.03)
     SlowKeyPress('0')
     time.sleep(.03)
 
-def buffs():
-    i=0
 
 def jump():
     KeyPress('command')
+
 
 def long_jump():
     KeyDown('command')
     time.sleep(.05)
     KeyUp('command')
 
+
 def turn_left():
     SlowKeyPress('left')
+
 
 def turn_right():
     SlowKeyPress('right')
 
-def move_left(length = None):
+
+def move_left(length=None):
     if length is None:
         KeyDown('left')
     else:
@@ -101,7 +114,8 @@ def move_left(length = None):
         time.sleep(length)
         KeyUp('left')
 
-def move_right(length = None):
+
+def move_right(length=None):
     if length is None:
         KeyDown('right')
     else:
@@ -109,11 +123,14 @@ def move_right(length = None):
         time.sleep(length)
         KeyUp('right')
 
+
 def climb():
     KeyDown('up')
 
+
 def stop_climb():
     KeyUp('up')
+
 
 def stop():
     KeyUp('left')
@@ -121,13 +138,16 @@ def stop():
     KeyUp('up')
     KeyUp('down')
 
+
 def att():
     KeyPress('a')
     time.sleep(.68)
 
+
 def att2():
     KeyPress('shift')
     time.sleep(.68)
+
 
 def rev_att_left():
     turn_left()
@@ -135,17 +155,19 @@ def rev_att_left():
     att()
     turn_right()
 
+
 def rev_att_right():
     turn_right()
     time.sleep(.1)
     att()
     turn_left()
 
+
 def jump_att():
     jump()
-    #rand = .1 + random.random() * .03
     time.sleep(.1)
     att()
+
 
 def jump_att2():
     jump()
@@ -162,6 +184,7 @@ def rev_jump_att_left():
     time.sleep(rand)
     att()
 
+
 def rev_jump_att_right():
     jump()
     rand = .05 + random.random() * .03
@@ -170,4 +193,3 @@ def rev_jump_att_right():
     rand = .05 + random.random() * .03
     time.sleep(rand)
     att()
-

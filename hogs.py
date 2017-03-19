@@ -1,4 +1,3 @@
-from PIL import Image
 from PIL import ImageGrab
 from motions import *
 import sys
@@ -26,7 +25,7 @@ def check_potions():
             elif i == 2:
                 feed()
             elif i == 3:
-                booster()
+                boost()
             start_times[i] = time.time()
 
 

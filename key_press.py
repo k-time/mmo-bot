@@ -5,6 +5,7 @@ from Quartz.CoreGraphics import kCGHIDEventTap
 
 # Code adapted from http://stackoverflow.com/questions/13564851/generate-keyboard-events/35373648
 
+
 def KeyDown(k):
     keyCode, shiftKey = toKeyCode(k)
 
@@ -21,6 +22,7 @@ def KeyDown(k):
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.0001)
 
+
 def KeyUp(k):
     keyCode, shiftKey = toKeyCode(k)
 
@@ -28,6 +30,7 @@ def KeyUp(k):
 
     CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, False))
     time.sleep(0.0001)
+
 
 def KeyPress(k):
     keyCode, shiftKey = toKeyCode(k)
@@ -48,6 +51,7 @@ def KeyPress(k):
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.0001)
 
+
 def SlowKeyPress(k):
     keyCode, shiftKey = toKeyCode(k)
 
@@ -67,8 +71,8 @@ def SlowKeyPress(k):
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.05)    
 
-# From http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes
 
+# From http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes
 def toKeyCode(c):
     shiftKey = False
     # Letter
