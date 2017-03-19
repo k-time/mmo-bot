@@ -10,6 +10,7 @@ failure_count = 0
 missing_count = 0
 x, y = 0, 0    # Character location on minimap
 x2, y2 = 0, 0  # Character location on screen
+last_x = 0
 start_times = [0,0,0]
 thresholds = [580,465,500]   # Speed, att, food
 direction = 'left'
@@ -31,25 +32,27 @@ def check_potions():
 
 # Takes screenshot and updates both character locations
 def update_screenshot(state=None):
-    global im, pixels, width, height, x, y, x2, y2, failure_count, missing_count
-    im=ImageGrab.grab(bbox=(0,0,1606,870))
+    global im, pixels, width, height, x, y, x2, y2, failure_count, missing_count, last_x
+    im=ImageGrab.grab(bbox=(0,0,1606,1008))
     pixels = im.load()
     width, height = im.size
 
-    x,y = locate_self(21,433,190,210)
-    x2,y2 = locate_character(0,1606,625,870)
+    x,y = locate_self(22,329,199,219)
+    x2,y2 = locate_character(0,1606,958,992)
 
     # Make sure game is still open
-    if x != -1:
+    if x != -1 and x != last_x:
         failure_count = 0
     else:
         failure_count += 1
-        if failure_count > 9:
+        print failure_count
+        if failure_count > 25:
             stop()
             close_app()
             print 'App closed unexpectedly! Could not find character on minimap.'
             sys.exit()
 
+    """
     if x2 != -1:
          missing_count = 0
     else:
@@ -59,7 +62,9 @@ def update_screenshot(state=None):
             close_app()
             print 'App closed unexpectedly! Could not find character on screen.'
             sys.exit()
-                   
+    """
+
+    last_x = x
     check_potions()
 
 
@@ -98,9 +103,8 @@ def monsters_around(x_min_range, x_max_range, y_min, y_max):
                 for j in range(y_min, y_max):
                     rgba=pixels[i,j]
                     # Find monster1 or monster2
-                    if rgba[0] == 153 and rgba[1] == 17 and rgba[2] == 255 \
-                    or rgba[0] == 102 and rgba[1] == 34 and rgba[2] == 170 \
-                    or rgba[0] == 255 and rgba[1] == 34 and rgba[2] == 255:
+                    if rgba[0] == 68 and rgba[1] == 119 and rgba[2] == 170 \
+                    or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
                         return True
 
     elif direction == 'right':
@@ -111,9 +115,8 @@ def monsters_around(x_min_range, x_max_range, y_min, y_max):
                 for j in range(y_min, y_max):
                     rgba=pixels[i,j]
                     # Find monster1 or monster2
-                    if rgba[0] == 153 and rgba[1] == 17 and rgba[2] == 255 \
-                    or rgba[0] == 102 and rgba[1] == 34 and rgba[2] == 170 \
-                    or rgba[0] == 255 and rgba[1] == 34 and rgba[2] == 255:
+                    if rgba[0] == 68 and rgba[1] == 119 and rgba[2] == 170 \
+                    or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
                         return True
 
     return False
@@ -128,21 +131,37 @@ def first_level():
     move_right()
     direction = 'right'
     
-    # Run for 5 hours
+    # Run for 6 hours
     while elapsed < 21600:
         elapsed = time.time() - start
         update_screenshot()
         logger.info(str(x) + ' ' + str(y) + ' ' + direction)
 
         # If you've reached the left boundary, turn around
-        if x < 45 and direction == 'left':
+        if x < 76 and direction == 'left':
             stop()
-            time.sleep(.05)
+            att()
+            time.sleep(.04)
             turn_right()
-            time.sleep(.6)
+            time.sleep(.2)
+            move_right(.3)
             direction = 'right'
-            for i in range(5): att()
 
+            for i in range(1): att()
+            """
+            for i in range(1):
+                update_screenshot()
+                if monsters_around(110,480,938,950):
+                    move_right(.1)
+                    for i in range(3): att()
+                elif monsters_around(-300,-110,938,950):
+                    print 'monsters behind'
+                    turn_left()
+                    for i in range(3): att()
+            """
+
+
+            """
             # Check if there are still monsters
             update_screenshot()
             logger.info(str(x) + ' ' + str(y) + ' ' + direction)
@@ -152,21 +171,38 @@ def first_level():
                 for i in range(3): att()
                 attack_count += 1
                 update_screenshot()
+            """
 
-            # Finished, booster and move on
-            boost()
+            # Finished, hb and move on
             move_right()
+            jump()
+            hyper()
             logger.info('Next lap')
 
         # If you've reached the right boundary, turn around
-        elif x > 400 and direction == 'right':
+        elif x > 266 and direction == 'right':
             stop()
-            time.sleep(.05)
+            att()
+            time.sleep(.04)
             turn_left()
-            time.sleep(.6)
+            time.sleep(.2)
+            move_left(1.6)
             direction = 'left'
-            for i in range(5): att()
+            
+            for i in range(1): att()
+            """
+            for i in range(1):
+                update_screenshot()
+                if monsters_around(110,450,938,950):
+                    move_left(.1)
+                    for i in range(4): att()
+                elif monsters_around(-300,-110,938,950):
+                    print 'monsters behind'
+                    turn_right()
+                    for i in range(4): att()
+            """
 
+            """
             # Check if there are still monsters
             update_screenshot()
             logger.info(str(x) + ' ' + str(y) + ' ' + direction)
@@ -176,9 +212,11 @@ def first_level():
                 for i in range(3): att()
                 attack_count += 1
                 update_screenshot()
+            """
 
             # Finished, booster and move on
             boost()
+            hyper()
             move_left()
             logger.info('Next lap')
 
@@ -186,17 +224,18 @@ def first_level():
         else:
             # Check that the character was found
             if x2 != -1:
-                if monsters_around(110,500,660,773):
-                    if random.random() > .08:
+                if monsters_around(40,520,938,950):
+                    if x > 208 and x < 234:
                         jump_att()
-                        if random.random() < .15: att()
                     else:
-                        jump_att2()
-                        if random.random() < .15: att()
+                        jump_att()
+                        jump_att()
+                        #jump_att()
 
             else:
-                print 'Character not found on screen'
+                logger.info('Character not found on screen')
     stop()
+
 
 
 def main():

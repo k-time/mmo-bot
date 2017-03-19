@@ -1,5 +1,6 @@
 from PIL import ImageGrab
 from motions import *
+from character import *
 import sys
 
 im = None
@@ -12,7 +13,6 @@ x2, y2 = 0, 0  # Character location on screen
 start_times = [0,0,0,0]
 thresholds = [580,465,500,360]   # Speed, att, food, beholder
 direction = 'left'
-debug = False
 
 # To handle if another player is in the map
 player_in_map = False
@@ -74,7 +74,7 @@ def update_screenshot(state=None):
     check_chat()
     if player_in_map:
         elapsed = time.time() - occupation_time
-        if debug: print elapsed
+        logger.info(elapsed)
         if elapsed > 90:
             print 'Other player spoke and occupied map for 90 seconds, quitting.'
             quit()
@@ -99,11 +99,11 @@ def check_chat():
 
     if player_in_map:
         if not others_around(36,385,200,226):
-            if debug: print 'Player has left map'
+            logger.info('Player has left map')
             player_in_map = False
             spoken = False
         else:
-            if debug: print 'Player is still in map'
+            logger.info('Player is still in map')
     else:
         for i in range(14,26):
             for j in range(1052,1145):
@@ -112,7 +112,7 @@ def check_chat():
                 if rgba[0] == 255 and rgba[1] == 255 and rgba[2] == 255:
                     # Check if there is another player
                     if not spoken and others_around(36,385,200,226):
-                        if debug: print 'Another player has spoken to you, and you have responded'
+                        logger.info('Another player has spoken to you, and you have responded')
                         stop()
                         say('sry no pt :)')
                         if direction == 'left':
@@ -151,27 +151,27 @@ def others_around(x_min, x_max, y_min, y_max):
 
 # Killing monsters on ground level
 def first_level():
-    global x, y, direction, debug
+    global x, y, direction
     start = time.time()
     elapsed = 0
 
     update_screenshot()
 
     if x < 190:
-        if debug: print x
+        logger.info(x)
         move_right()
         direction = 'right'
-        if debug: print 'moving right'
+        logger.info('moving right')
     else:
         move_left()
         direction = 'left'
-        if debug: print 'moving left'
+        logger.info('moving left')
     
     # Run for 6 hours
     while elapsed < 21600:
         elapsed = time.time() - start
         update_screenshot()
-        if debug: print x, y, direction
+        logger.info(str(x) + ' ' + str(y) + ' ' + direction)
 
         # If you've reached the left boundary, turn around
         if x < 40 and direction == 'left':
@@ -187,7 +187,7 @@ def first_level():
 
                 # Check if you're still against the left boundary
                 update_screenshot()
-                if debug: print 'Checking if against boundary'
+                logger.info('Checking if against boundary')
                 if x > 43:
                     while x > 43:
                         move_left()
@@ -202,7 +202,7 @@ def first_level():
             hyper()
             stance()
             move_right()
-            if debug: print 'Next lap'
+            logger.info('Next lap')
 
         # If you've reached the right boundary, turn around
         elif x > 380 and direction == 'right':
@@ -218,7 +218,7 @@ def first_level():
 
                 # Check if you're still against the right boundary
                 update_screenshot()
-                if debug: print 'Checking if against boundary'
+                logger.info('Checking if against boundary')
                 if x < 377:
                     while x < 377:
                         move_right()
@@ -234,7 +234,7 @@ def first_level():
             hyper()
             stance()
             move_left()
-            if debug: print 'Next lap'
+            logger.info('Next lap')
 
         # Attack!
         else:

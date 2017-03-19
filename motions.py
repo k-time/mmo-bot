@@ -2,7 +2,6 @@ from key_press import *
 import random
 from datetime import datetime
 
-
 def close_app():
     stop()
     time.sleep(1)

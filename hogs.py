@@ -1,5 +1,6 @@
 from PIL import ImageGrab
 from motions import *
+from character import *
 import sys
 
 im = None
@@ -11,7 +12,7 @@ x2, y2 = 0, 0  # Character location on screen
 start_times = [0,0,0,0]
 thresholds = [160,465,500,40]   # Speed, att, food, booster
 direction = 'left'
-debug = True
+
 
 def check_potions():
     global start_times, thresholds
@@ -121,7 +122,7 @@ def monsters_around(x_min_range, x_max_range, y_min, y_max):
 
 # Killing monsters on ground level
 def first_level():
-    global x, y, x2, y2, direction, debug
+    global x, y, x2, y2, direction
     laps = 0
     move_left()
     direction = 'left'
@@ -129,7 +130,7 @@ def first_level():
     # Do 2 lengths
     while laps <= 1:
         update_screenshot(1)
-        if debug: print x,y, direction
+        logger.info(str(x) + ' ' + str(y) + ' ' + direction)
 
         # If you've reached the left boundary, turn around
         if x < 49 and direction == 'left':
@@ -139,7 +140,7 @@ def first_level():
             move_right()
             direction = 'right'
             laps += 1
-            if debug: print 'Done ' + str(laps) + ' laps'
+            logger.info('Done ' + str(laps) + ' laps')
         # If you've reached the right boundary, turn around
         elif x > 195 and direction == 'right':
             stop()
@@ -148,7 +149,7 @@ def first_level():
             move_left()
             direction = 'left'
             laps += 1
-            if debug: print 'Done ' + str(laps) + ' laps'
+            logger.info('Done ' + str(laps) + ' laps')
         # Attack!
         else:
             # Check that the character was found
@@ -159,13 +160,13 @@ def first_level():
 
 
 def climb_ladder():
-    global x, y, x2, y2, direction, debug
+    global x, y, x2, y2, direction
     on_ladder = False
     stop()
 
     while not on_ladder:
         update_screenshot(2)
-        if debug: print x,y
+        logger.info(str(x) + str(y))
 
         # Right of ladder and far away
         if x > 122:
@@ -173,7 +174,7 @@ def climb_ladder():
             # update_screenshot updates x, so loop will stop when character is in range
             while x > 122:
                 update_screenshot(2)
-                if debug: print x,y
+                logger.info(str(x) + str(y))
             jump()
             climb()
 
@@ -183,13 +184,13 @@ def climb_ladder():
             # update_screenshot updates x, so loop will stop when character is in range
             while x < 80:
                 update_screenshot(2)
-                if debug: print x,y
+                logger.info(str(x) + str(y))
             jump()
             climb()
 
         # Right of ladder and close
         elif x <= 122 and x > 100:
-            if debug: print x,y
+            logger.info(str(x) + str(y))
             stop()
             move_left()
             time.sleep(.1)
@@ -198,7 +199,7 @@ def climb_ladder():
 
         # Left of ladder and close
         elif x >= 80 and x <= 100:
-            if debug: print x,y
+            logger.info(str(x) + str(y))
             stop()
             move_right()
             time.sleep(.1)
@@ -221,7 +222,7 @@ def climb_ladder():
 
 
 def cross_platforms():
-    global y, debug
+    global y
     stop()
     move_left()
     time.sleep(.6)
@@ -232,7 +233,7 @@ def cross_platforms():
     climb()
     time.sleep(.5)
     update_screenshot(3)
-    if debug: print x,y
+    logger.info(str(x) + str(y))
 
     # Successfully climbed ladder
     if y < 248:
@@ -249,7 +250,7 @@ def cross_platforms():
             move_left(.2)
             time.sleep(1)
             update_screenshot(3)
-            if debug: print x,y
+            logger.info(str(x) + str(y))
             # On ladder
             if y < 248:
                 move_right()
@@ -267,7 +268,7 @@ def cross_platforms():
 
 
 def second_level():
-    global x, y, x2, y2, direction, debug
+    global x, y, x2, y2, direction
     stop()
     turn_right()
     direction = 'right'
@@ -279,9 +280,8 @@ def second_level():
     # If 2 screenshots in a row don't have monsters, you're done
     while count < 2:
         update_screenshot(4)
-        if debug:
-            print x,y
-            print x2,y2
+        logger.info(str(x) + str(y))
+        logger.info(str(x2) + str(y2))
 
         # Failure if you fall off platform
         if y > 245:
@@ -304,14 +304,14 @@ def second_level():
 
         # If character tag is blocked, you can't find monsters
         elif x2 == -1:
-            if debug: print 'Cannot find character'
+            logger.info('Cannot find character')
             if had_monsters:
                 for i in range(2): att()
             move_left(.1)
 
         # If there are monsters in front
         elif monsters_around(0,300,658,688):
-            if debug: print 'Found monsters ahead'
+            logger.info('Found monsters ahead')
             had_monsters = True
             attack_count += 1
             # Reset the count
@@ -325,7 +325,7 @@ def second_level():
 
         # If there are monsters behind
         elif monsters_around(-300,0,658,688):
-            if debug: print 'Found monsters behind'
+            logger.info('Found monsters behind')
             had_monsters = True
             attack_count += 1
             count = 0
@@ -345,20 +345,20 @@ def second_level():
         else:
             had_monsters = False
             count += 1
-            if debug: print 'No monsters ' + str(count) + ' time(s)'
+            logger.info('No monsters ' + str(count) + ' time(s)')
 
     stop()
     return True
 
 
 def climb_ladder_2():
-    global x, y, x2, y2, direction, debug
+    global x, y, x2, y2, direction
     on_ladder = False
     stop()
 
     while not on_ladder:
         update_screenshot(5)
-        if debug: print x,y
+        logger.info(str(x) + str(y))
 
         # Failure if you fall off platform
         if y > 245:
@@ -370,7 +370,7 @@ def climb_ladder_2():
             # update_screenshot updates x, so loop will stop when character is in range
             while x > 114:
                 update_screenshot(5)
-                if debug: print x,y
+                logger.info(str(x) + str(y))
             jump()
             climb()
 
@@ -380,13 +380,13 @@ def climb_ladder_2():
             # update_screenshot updates x, so loop will stop when character is in range
             while x < 74:
                 update_screenshot(5)
-                if debug: print x,y
+                logger.info(str(x) + str(y))
             jump()
             climb()
 
         # Right of ladder and close
         elif x <= 114 and x > 94:
-            if debug: print x,y
+            logger.info(str(x) + str(y))
             stop()
             move_left()
             time.sleep(.1)
@@ -395,7 +395,7 @@ def climb_ladder_2():
 
         # Left of ladder and close
         elif x >= 74 and x <= 94:
-            if debug: print x,y
+            logger.info(str(x) + str(y))
             stop()
             move_right()
             time.sleep(.1)
@@ -420,7 +420,7 @@ def climb_ladder_2():
 
 
 def third_level():
-    global x, y, x2, y2, direction, debug
+    global x, y, x2, y2, direction
     stop()
     turn_right()
     direction = 'right'
@@ -432,9 +432,8 @@ def third_level():
     # If 3 screenshots in a row don't have monsters, you're done
     while count < 3:
         update_screenshot(6)
-        if debug:
-            print x,y
-            print x2,y2
+        logger.info(str(x) + str(y))
+        logger.info(str(x2) + str(y2))
 
         # Failure if you fall off platform
         if y > 203:
@@ -457,14 +456,14 @@ def third_level():
 
         # If character tag is blocked, you can't find monsters
         elif x2 == -1:
-            if debug: print 'Cannot find character'
+            logger.info('Cannot find character')
             if had_monsters:
                 for i in range(2): att()
             move_left(.1)
 
         # If there are monsters in front
         elif monsters_around(0,300,646,820):
-            if debug: print 'Found monsters ahead'
+            logger.info('Found monsters ahead')
             had_monsters = True
             attack_count += 1
             # Reset the count
@@ -478,7 +477,7 @@ def third_level():
 
         # If there are monsters behind
         elif monsters_around(-300,0,646,820):
-            if debug: print 'Found monsters behind'
+            logger.info('Found monsters behind')
             had_monsters = True
             attack_count += 1
             count = 0
@@ -498,7 +497,7 @@ def third_level():
         else:
             had_monsters = False
             count += 1
-            if debug: print 'No monsters ' + str(count) + ' time(s)'
+            logger.info('No monsters ' + str(count) + ' time(s)')
 
     stop()
     return True
