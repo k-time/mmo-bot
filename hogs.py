@@ -1,6 +1,6 @@
 from PIL import ImageGrab
 from motions import *
-from character import *
+import logging
 import sys
 
 im = None
@@ -9,9 +9,13 @@ width, height = 0, 0
 failure_count = 0
 x, y = 0, 0    # Character location on minimap
 x2, y2 = 0, 0  # Character location on screen
-start_times = [0,0,0,0]
-thresholds = [160,465,500,40]   # Speed, att, food, booster
+start_times = [0, 0, 0, 0]
+thresholds = [160, 465, 500, 40]   # Speed, att, food, boost
 direction = 'left'
+
+# Logger
+logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logger = logging.getLogger('BOT')
 
 
 def check_potions():
@@ -33,33 +37,32 @@ def check_potions():
 # Takes screenshot and updates both character locations
 def update_screenshot(state):
     global im, pixels, width, height, x, y, x2, y2, failure_count
-    im=ImageGrab.grab(bbox=(0,0,1606,998))
+    im = ImageGrab.grab(bbox=(0, 0, 1606, 998))
     pixels = im.load()
     width, height = im.size
 
-    x,y = locate_self(29,224,167,337)
+    x, y = locate_self(29, 224, 167, 337)
     # Make sure game is still open
     if x != -1:
         failure_count = 0
     else:
         failure_count += 1
-        print failure_count
+        logger.info(failure_count)
         if failure_count > 9:
             stop()
             close_app()
             sys.exit()
 
-
     if state == 1 or state == 2:
-        x2,y2 = locate_character(0,1606,798,871)
+        x2, y2 = locate_character(0, 1606, 798, 871)
     if state == 3:
-        x2,y2 = -1,-1
+        x2, y2 = -1, -1
     if state == 4 or state == 5:
-        x2,y2 = locate_character(330,1100,692,820)
+        x2, y2 = locate_character(330, 1100, 692, 820)
     if state == 6:
-        x2,y2 = locate_character(110,1100,680,910)
+        x2, y2 = locate_character(110, 1100, 680, 910)
     if state == 7:
-        x2,y2 = -1,-1
+        x2, y2 = -1, -1
 
     check_potions()
 
@@ -68,40 +71,39 @@ def update_screenshot(state):
 def locate_self(x_min, x_max, y_min, y_max):
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found yourself
             if rgba[0] == 255 and rgba[1] == 255 and rgba[2] == 136:
-               return i,j
-    return -1,-1
+                return i, j
+    return -1, -1
 
 
 # Locate actual character on screen
 def locate_character(x_min, x_max, y_min, y_max):
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found character name tag
             if rgba[0] == 0 and rgba[1] == 136 and rgba[2] == 204:
                 # Adjust to center of name, and at the character's mouth
-                return i+48,j+25
-    return -1,-1
+                return i+48, j+25
+    return -1, -1
 
 
 # Locate monsters around you
 def monsters_around(x_min_range, x_max_range, y_min, y_max):
     global x2, direction
-
     if direction == 'left':
         left_bound = x2-x_max_range
         right_bound = x2-x_min_range
         if left_bound > 0 and right_bound < width:
             for i in range(left_bound, right_bound):
                 for j in range(y_min, y_max):
-                    rgba=pixels[i,j]
+                    rgba = pixels[i, j]
                     # Find monster1 or monster2 or monster3
                     if rgba[0] == 153 and rgba[1] == 136 and rgba[2] == 119 \
-                    or rgba[0] == 221 and rgba[1] == 102 and rgba[2] == 0:
-                    #or rgba[0] == 153 and rgba[1] == 102 and rgba[2] == 51:
+                            or rgba[0] == 221 and rgba[1] == 102 and rgba[2] == 0:
+                        # or rgba[0] == 153 and rgba[1] == 102 and rgba[2] == 51:
                         return True
 
     elif direction == 'right':
@@ -110,11 +112,11 @@ def monsters_around(x_min_range, x_max_range, y_min, y_max):
         if left_bound > 0 and right_bound < width:
             for i in range(left_bound, right_bound):
                 for j in range(y_min, y_max):
-                    rgba=pixels[i,j]
+                    rgba = pixels[i, j]
                     # Find monster1 or monster2 or monster3
                     if rgba[0] == 153 and rgba[1] == 136 and rgba[2] == 119 \
-                    or rgba[0] == 221 and rgba[1] == 102 and rgba[2] == 0:
-                    #or rgba[0] == 153 and rgba[1] == 102 and rgba[2] == 51:
+                            or rgba[0] == 221 and rgba[1] == 102 and rgba[2] == 0:
+                        # or rgba[0] == 153 and rgba[1] == 102 and rgba[2] == 51:
                         return True
 
     return False
@@ -136,26 +138,31 @@ def first_level():
         if x < 49 and direction == 'left':
             stop()
             turn_right()
-            for i in range(3): att()
+            for i in range(3):
+                att()
             move_right()
             direction = 'right'
             laps += 1
             logger.info('Done ' + str(laps) + ' laps')
+
         # If you've reached the right boundary, turn around
         elif x > 195 and direction == 'right':
             stop()
             turn_left()
-            for i in range(3): att()
+            for i in range(3):
+                att()
             move_left()
             direction = 'left'
             laps += 1
             logger.info('Done ' + str(laps) + ' laps')
+
         # Attack!
         else:
             # Check that the character was found
             if x2 != -1:
-                if monsters_around(40,400,779,792):
-                    for i in range(2): att()
+                if monsters_around(40, 400, 779, 792):
+                    for i in range(2):
+                        att()
     stop()
 
 
@@ -189,7 +196,7 @@ def climb_ladder():
             climb()
 
         # Right of ladder and close
-        elif x <= 122 and x > 100:
+        elif 100 < x <= 122:
             logger.info(str(x) + str(y))
             stop()
             move_left()
@@ -198,7 +205,7 @@ def climb_ladder():
             climb()
 
         # Left of ladder and close
-        elif x >= 80 and x <= 100:
+        elif 80 <= x <= 100:
             logger.info(str(x) + str(y))
             stop()
             move_right()
@@ -226,7 +233,8 @@ def cross_platforms():
     stop()
     move_left()
     time.sleep(.6)
-    for i in range(18): long_jump()
+    for i in range(18):
+        long_jump()
     stop()
     time.sleep(.5)
     jump()
@@ -241,9 +249,8 @@ def cross_platforms():
         time.sleep(1.5)
         stop_climb()
         return True
-
     # On platform, but didn't climb ladder
-    elif y >= 248 and y < 273:
+    elif 258 <= y < 273:
         for i in range(10):
             jump()
             time.sleep(.1)
@@ -261,7 +268,6 @@ def cross_platforms():
             elif y > 273:
                 return False
         return False
-
     # On ground
     else:
         return False
@@ -272,7 +278,6 @@ def second_level():
     stop()
     turn_right()
     direction = 'right'
-
     had_monsters = True
     attack_count = 0
     count = 0
@@ -306,25 +311,28 @@ def second_level():
         elif x2 == -1:
             logger.info('Cannot find character')
             if had_monsters:
-                for i in range(2): att()
+                for i in range(2):
+                    att()
             move_left(.1)
 
         # If there are monsters in front
-        elif monsters_around(0,300,658,688):
+        elif monsters_around(0, 300, 658, 688):
             logger.info('Found monsters ahead')
             had_monsters = True
             attack_count += 1
             # Reset the count
             count = 0
             if direction == 'right':
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_right(.2)
             else:
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_left(.2)
 
         # If there are monsters behind
-        elif monsters_around(-300,0,658,688):
+        elif monsters_around(-300, 0, 658, 688):
             logger.info('Found monsters behind')
             had_monsters = True
             attack_count += 1
@@ -332,14 +340,15 @@ def second_level():
             if direction == 'right':
                 turn_left()
                 direction = 'left'
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_left(.2)
             else:
                 turn_right()
                 direction = 'right'
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_right(.2)
-
 
         # If there are no monsters
         else:
@@ -385,7 +394,7 @@ def climb_ladder_2():
             climb()
 
         # Right of ladder and close
-        elif x <= 114 and x > 94:
+        elif 94 < x <= 114:
             logger.info(str(x) + str(y))
             stop()
             move_left()
@@ -394,7 +403,7 @@ def climb_ladder_2():
             climb()
 
         # Left of ladder and close
-        elif x >= 74 and x <= 94:
+        elif 74 <= x <= 94:
             logger.info(str(x) + str(y))
             stop()
             move_right()
@@ -413,9 +422,7 @@ def climb_ladder_2():
         else:
             move_left()
             time.sleep(.1)
-
         stop()
-    
     return True
 
 
@@ -458,25 +465,28 @@ def third_level():
         elif x2 == -1:
             logger.info('Cannot find character')
             if had_monsters:
-                for i in range(2): att()
+                for i in range(2):
+                    att()
             move_left(.1)
 
         # If there are monsters in front
-        elif monsters_around(0,300,646,820):
+        elif monsters_around(0, 300, 646, 820):
             logger.info('Found monsters ahead')
             had_monsters = True
             attack_count += 1
             # Reset the count
             count = 0
             if direction == 'right':
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_right(.2)
             else:
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_left(.2)
 
         # If there are monsters behind
-        elif monsters_around(-300,0,646,820):
+        elif monsters_around(-300, 0, 646, 820):
             logger.info('Found monsters behind')
             had_monsters = True
             attack_count += 1
@@ -484,14 +494,15 @@ def third_level():
             if direction == 'right':
                 turn_left()
                 direction = 'left'
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_left(.2)
             else:
                 turn_right()
                 direction = 'right'
-                for i in range(3): att()
+                for i in range(3):
+                    att()
                 move_right(.2)
-
 
         # If there are no monsters
         else:
@@ -512,7 +523,8 @@ def drop_down():
     stop()
     turn_left()
     direction = 'left'
-    for i in range(4): att()
+    for i in range(4):
+        att()
 
 
 def main():
@@ -520,11 +532,9 @@ def main():
     start_times = [time.time(), time.time(), time.time(), time.time()]
     start = time.time()
     elapsed = 0
-    success = False
 
     while elapsed < 18000:
         first_level()
-        
         # Tries to climb to next level 4 times
         success = False
         count = 0
@@ -534,7 +544,6 @@ def main():
             if success:
                 success = second_level()
             count += 1
-
         # If you've killed monsters on the second level
         if success:
             success = climb_ladder_2()
@@ -547,7 +556,7 @@ def main():
 
     quit_game()
     close_app()
-    print 'Exited nicely after 5 hours!'
+    logger.info('Exited nicely after 5 hours!')
     
 
 if __name__ == '__main__':

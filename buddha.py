@@ -1,17 +1,24 @@
 from PIL import ImageGrab
 from motions import *
-from character import *
+import logging
 import sys
+
+"""
+I should have created a character class instead of using these global variables,
+as well as modularized the code more. I was trying to create a working bot quickly
+and didn't take enough time initially to think about code structure. If I were still 
+developing this bot, I would restructure the code with better object-oriented design, 
+but I don't use the bot anymore. That being said, the bot performs very well.
+"""
 
 im = None
 pixels = None
 width, height = 0, 0
 failure_count = 0
-missing_count = 0
 x, y = 0, 0    # Character location on minimap
 x2, y2 = 0, 0  # Character location on screen
-start_times = [0,0,0,0]
-thresholds = [580,465,500,360]   # Speed, att, food, beholder
+start_times = [0, 0, 0, 0]
+thresholds = [580, 465, 500, 360]   # Speed, att, food, beholder
 direction = 'left'
 
 # To handle if another player is in the map
@@ -19,12 +26,9 @@ player_in_map = False
 spoken = False
 occupation_time = 0
 
-# Close game and terminate program
-def quit():
-    save_image()
-    quit_game()
-    close_app()
-    sys.exit()
+# Logger
+logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logger = logging.getLogger('BOT')
 
 
 def check_potions():
@@ -38,46 +42,52 @@ def check_potions():
                 att_pot()
             elif i == 2:
                 feed()
-                KeyPress('b')
+                key_press('b')
                 time.sleep(1)
-                KeyPress('b')
+                key_press('b')
             elif i == 3:
-                b = 0
                 time.sleep(1)
                 behold()
             start_times[i] = time.time()
 
 
 # Takes screenshot and updates both character locations
-def update_screenshot(state=None):
-    global im, pixels, width, height, x, y, failure_count, missing_count, player_in_map, spoken, occupation_time
-    im=ImageGrab.grab(bbox=(0,0,1606,1145))
+def update_screenshot():
+    global im, pixels, width, height, x, y, \
+        failure_count, player_in_map, spoken, occupation_time
+    im = ImageGrab.grab(bbox=(0, 0, 1606, 1145))
     pixels = im.load()
     width, height = im.size
 
-    x,y = locate_self(36,385,214,215)
-
+    x, y = locate_self(36, 385, 214, 215)
     # Make sure game is still open
     if x != -1:
         failure_count = 0
     else:
         failure_count += 1
-        print 'Failure count starting'
-        print failure_count
+        logger.info('Failure count starting')
+        logger.info(failure_count)
         if failure_count > 12:
-            print 'App closed unexpectedly! Could not find character on minimap.'
-            quit()
+            logger.info('App closed unexpectedly! Could not find character on minimap.')
+            save_and_quit()
 
     check_death()
     check_potions()
-
     check_chat()
     if player_in_map:
         elapsed = time.time() - occupation_time
         logger.info(elapsed)
         if elapsed > 90:
-            print 'Other player spoke and occupied map for 90 seconds, quitting.'
-            quit()
+            logger.info('Other player spoke and occupied map for 90 seconds, quitting.')
+            save_and_quit()
+
+
+# Close game and terminate program
+def save_and_quit():
+    save_image()
+    quit_game()
+    close_app()
+    sys.exit()
 
 
 def save_image():
@@ -87,31 +97,30 @@ def save_image():
 
 def check_death():
     global pixels
-    rgba = pixels[800,470]
+    rgba = pixels[800, 470]
     if rgba[0] == 68 and rgba[1] == 136 and rgba[2] == 187:
-        print 'Died...'
-        quit()
+        logger.info('Died...')
+        save_and_quit()
 
 
 # Checks if there is white text in the chat
 def check_chat():
     global pixels, player_in_map, spoken, occupation_time
-
     if player_in_map:
-        if not others_around(36,385,200,226):
+        if not others_around(36, 385, 200, 226):
             logger.info('Player has left map')
             player_in_map = False
             spoken = False
         else:
             logger.info('Player is still in map')
     else:
-        for i in range(14,26):
-            for j in range(1052,1145):
-                rgba = pixels[i,j]
+        for i in range(14, 26):
+            for j in range(1052, 1145):
+                rgba = pixels[i, j]
                 # There is white text
                 if rgba[0] == 255 and rgba[1] == 255 and rgba[2] == 255:
                     # Check if there is another player
-                    if not spoken and others_around(36,385,200,226):
+                    if not spoken and others_around(36, 385, 200, 226):
                         logger.info('Another player has spoken to you, and you have responded')
                         stop()
                         say('sry no pt :)')
@@ -130,11 +139,11 @@ def locate_self(x_min, x_max, y_min, y_max):
     global pixels
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found yourself
             if rgba[0] == 255 and rgba[1] == 255 and rgba[2] == 136:
-               return i,j
-    return -1,-1
+                return i, j
+    return -1, -1
 
 
 # Check if another player is in the map
@@ -142,10 +151,10 @@ def others_around(x_min, x_max, y_min, y_max):
     global pixels
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found yourself
             if rgba[0] == 238 and rgba[1] == 0 and rgba[2] == 0:
-               return True
+                return True
     return False
 
 
@@ -156,7 +165,6 @@ def first_level():
     elapsed = 0
 
     update_screenshot()
-
     if x < 190:
         logger.info(x)
         move_right()
@@ -172,7 +180,6 @@ def first_level():
         elapsed = time.time() - start
         update_screenshot()
         logger.info(str(x) + ' ' + str(y) + ' ' + direction)
-
         # If you've reached the left boundary, turn around
         if x < 40 and direction == 'left':
             stop()
@@ -181,10 +188,10 @@ def first_level():
             hyper()
             direction = 'right'
 
-            for i in range(1):
+            for i in range(2):
                 # Attack for a bit
-                for j in range(5): att()
-
+                for j in range(5):
+                    att()
                 # Check if you're still against the left boundary
                 update_screenshot()
                 logger.info('Checking if against boundary')
@@ -196,9 +203,9 @@ def first_level():
                     turn_right()
 
             # Attack for one more period
-            for j in range(3): att()
-
-            # Finished, hb and move on
+            for j in range(3):
+                att()
+            # Finished, hyper and move on
             hyper()
             stance()
             move_right()
@@ -214,8 +221,8 @@ def first_level():
 
             for i in range(1):
                 # Attack for a bit
-                for j in range(5): att()
-
+                for j in range(5):
+                    att()
                 # Check if you're still against the right boundary
                 update_screenshot()
                 logger.info('Checking if against boundary')
@@ -227,9 +234,9 @@ def first_level():
                     turn_left()
 
             # Attack for one more period
-            for j in range(3): att()
-
-            # Finished, booster and move on
+            for j in range(3):
+                att()
+            # Finished, buff and move on
             boost()
             hyper()
             stance()
@@ -244,8 +251,8 @@ def first_level():
                 jump_att()
                 time.sleep(.1)
                 jump_att()
-                #jump_att()
-                #time.sleep(.15)
+                # jump_att()
+                # time.sleep(.15)
             elif x > 65 and direction == 'left' or x < 360 and direction == 'right':
                 jump_att()
 
@@ -255,12 +262,10 @@ def first_level():
 def main():
     global start_times
     start_times = [time.time(), time.time(), time.time(), time.time()]
-
     first_level()
-
     quit_game()
     close_app()
-    print 'Exited nicely after 6 hours!'
+    logger.info('Exited nicely after 6 hours!')
     
 
 if __name__ == '__main__':

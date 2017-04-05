@@ -1,19 +1,22 @@
 from PIL import ImageGrab
 from motions import *
-from character import *
+import logging
 import sys
 
 im = None
 pixels = None
 width, height = 0, 0
 failure_count = 0
-missing_count = 0
 x, y = 0, 0    # Character location on minimap
 x2, y2 = 0, 0  # Character location on screen
 last_x = 0
-start_times = [0,0,0]
-thresholds = [580,465,500]   # Speed, att, food
+start_times = [0, 0, 0]
+thresholds = [580, 465, 500]   # Speed, att, food
 direction = 'left'
+
+# Logger
+logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logger = logging.getLogger('BOT')
 
 
 def check_potions():
@@ -31,38 +34,25 @@ def check_potions():
 
 
 # Takes screenshot and updates both character locations
-def update_screenshot(state=None):
-    global im, pixels, width, height, x, y, x2, y2, failure_count, missing_count, last_x
-    im=ImageGrab.grab(bbox=(0,0,1606,1008))
+def update_screenshot():
+    global im, pixels, width, height, x, y, x2, y2, failure_count, last_x
+    im = ImageGrab.grab(bbox=(0, 0, 1606, 1008))
     pixels = im.load()
     width, height = im.size
-
-    x,y = locate_self(22,329,199,219)
-    x2,y2 = locate_character(0,1606,958,992)
+    x, y = locate_self(22, 329, 199, 219)
+    x2, y2 = locate_character(0, 1606, 958, 992)
 
     # Make sure game is still open
     if x != -1 and x != last_x:
         failure_count = 0
     else:
         failure_count += 1
-        print failure_count
+        logger.info(failure_count)
         if failure_count > 25:
             stop()
             close_app()
-            print 'App closed unexpectedly! Could not find character on minimap.'
+            logger.info('App closed unexpectedly! Could not find character on minimap.')
             sys.exit()
-
-    """
-    if x2 != -1:
-         missing_count = 0
-    else:
-        missing_count += 1
-        if missing_count > 19:
-            stop()
-            close_app()
-            print 'App closed unexpectedly! Could not find character on screen.'
-            sys.exit()
-    """
 
     last_x = x
     check_potions()
@@ -72,39 +62,38 @@ def update_screenshot(state=None):
 def locate_self(x_min, x_max, y_min, y_max):
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found yourself
             if rgba[0] == 255 and rgba[1] == 255 and rgba[2] == 136:
-               return i,j
-    return -1,-1
+                return i, j
+    return -1, -1
 
 
 # Locate actual character on screen
 def locate_character(x_min, x_max, y_min, y_max):
     for i in range(x_min, x_max):
         for j in range(y_min, y_max):
-            rgba = pixels[i,j]
+            rgba = pixels[i, j]
             # Found character name tag
             if rgba[0] == 0 and rgba[1] == 136 and rgba[2] == 204:
                 # Adjust to center of name, and at the character's mouth
-                return i+48,j+25
-    return -1,-1
+                return i+48, j+25
+    return -1, -1
 
 
 # Locate monsters around you
 def monsters_around(x_min_range, x_max_range, y_min, y_max):
     global x2, direction
-
     if direction == 'left':
         left_bound = x2-x_max_range
         right_bound = x2-x_min_range
         if left_bound > 0 and right_bound < width:
             for i in range(left_bound, right_bound):
                 for j in range(y_min, y_max):
-                    rgba=pixels[i,j]
+                    rgba = pixels[i, j]
                     # Find monster1 or monster2
                     if rgba[0] == 68 and rgba[1] == 119 and rgba[2] == 170 \
-                    or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
+                            or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
                         return True
 
     elif direction == 'right':
@@ -113,12 +102,11 @@ def monsters_around(x_min_range, x_max_range, y_min, y_max):
         if left_bound > 0 and right_bound < width:
             for i in range(left_bound, right_bound):
                 for j in range(y_min, y_max):
-                    rgba=pixels[i,j]
+                    rgba = pixels[i, j]
                     # Find monster1 or monster2
                     if rgba[0] == 68 and rgba[1] == 119 and rgba[2] == 170 \
-                    or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
+                            or rgba[0] == 0 and rgba[1] == 204 and rgba[2] == 85:
                         return True
-
     return False
 
 
@@ -127,7 +115,6 @@ def first_level():
     global x, y, x2, y2, direction
     start = time.time()
     elapsed = 0
-
     move_right()
     direction = 'right'
     
@@ -146,8 +133,10 @@ def first_level():
             time.sleep(.2)
             move_right(.3)
             direction = 'right'
+            for i in range(1):
+                att()
 
-            for i in range(1): att()
+            # Removed due to increase in in-game skill level
             """
             for i in range(1):
                 update_screenshot()
@@ -155,11 +144,10 @@ def first_level():
                     move_right(.1)
                     for i in range(3): att()
                 elif monsters_around(-300,-110,938,950):
-                    print 'monsters behind'
+                    logger.info('monsters behind'
                     turn_left()
                     for i in range(3): att()
             """
-
 
             """
             # Check if there are still monsters
@@ -167,13 +155,13 @@ def first_level():
             logger.info(str(x) + ' ' + str(y) + ' ' + direction)
             attack_count = 0
             while attack_count < 3 and monsters_around(20,150,620,785):
-                print 'Still see monsters'
+                logger.info('Still see monsters'
                 for i in range(3): att()
                 attack_count += 1
                 update_screenshot()
             """
 
-            # Finished, hb and move on
+            # Finished, hyper and move on
             move_right()
             jump()
             hyper()
@@ -188,8 +176,10 @@ def first_level():
             time.sleep(.2)
             move_left(1.6)
             direction = 'left'
-            
-            for i in range(1): att()
+            for i in range(1):
+                att()
+
+            # Removed due to increase in in-game skill level
             """
             for i in range(1):
                 update_screenshot()
@@ -197,7 +187,7 @@ def first_level():
                     move_left(.1)
                     for i in range(4): att()
                 elif monsters_around(-300,-110,938,950):
-                    print 'monsters behind'
+                    logger.info('monsters behind'
                     turn_right()
                     for i in range(4): att()
             """
@@ -208,13 +198,13 @@ def first_level():
             logger.info(str(x) + ' ' + str(y) + ' ' + direction)
             attack_count = 0
             while attack_count < 3 and monsters_around(20,150,620,785):
-                print 'Still see monsters'
+                logger.info('Still see monsters'
                 for i in range(3): att()
                 attack_count += 1
                 update_screenshot()
             """
 
-            # Finished, booster and move on
+            # Finished, buff and move on
             boost()
             hyper()
             move_left()
@@ -224,29 +214,25 @@ def first_level():
         else:
             # Check that the character was found
             if x2 != -1:
-                if monsters_around(40,520,938,950):
-                    if x > 208 and x < 234:
+                if monsters_around(40, 520, 938, 950):
+                    if 208 < x < 234:
                         jump_att()
                     else:
                         jump_att()
                         jump_att()
-                        #jump_att()
 
             else:
                 logger.info('Character not found on screen')
     stop()
 
 
-
 def main():
     global start_times
     start_times = [time.time(), time.time(), time.time()]
-
     first_level()
-
     quit_game()
     close_app()
-    print 'Exited nicely after 6 hours!'
+    logger.info('Exited nicely after 6 hours!')
     
 
 if __name__ == '__main__':
