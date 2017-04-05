@@ -8,7 +8,6 @@ from Quartz.CoreGraphics import kCGHIDEventTap
 
 def key_down(k):
     key_code, shift_key = to_key_code(k)
-
     time.sleep(0.0001)
 
     if shift_key:
@@ -25,7 +24,6 @@ def key_down(k):
 
 def key_up(k):
     key_code, shift_key = to_key_code(k)
-
     time.sleep(0.0001)
 
     CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, False))
@@ -34,7 +32,6 @@ def key_up(k):
 
 def key_press(k):
     key_code, shift_key = to_key_code(k)
-
     time.sleep(0.0001)
 
     if shift_key:
@@ -54,7 +51,6 @@ def key_press(k):
 
 def slow_key_press(k):
     key_code, shift_key = to_key_code(k)
-
     time.sleep(0.0001)
 
     if shift_key:
