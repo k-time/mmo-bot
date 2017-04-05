@@ -6,92 +6,92 @@ from Quartz.CoreGraphics import kCGHIDEventTap
 # Code adapted from http://stackoverflow.com/questions/13564851/generate-keyboard-events/35373648
 
 
-def KeyDown(k):
-    keyCode, shiftKey = toKeyCode(k)
+def key_down(k):
+    key_code, shift_key = to_key_code(k)
 
     time.sleep(0.0001)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, True))
         time.sleep(0.0001)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, True))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, True))
     time.sleep(0.0001)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.0001)
 
 
-def KeyUp(k):
-    keyCode, shiftKey = toKeyCode(k)
+def key_up(k):
+    key_code, shift_key = to_key_code(k)
 
     time.sleep(0.0001)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, False))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, False))
     time.sleep(0.0001)
 
 
-def KeyPress(k):
-    keyCode, shiftKey = toKeyCode(k)
+def key_press(k):
+    key_code, shift_key = to_key_code(k)
 
     time.sleep(0.0001)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, True))
         time.sleep(0.0001)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, True))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, True))
     time.sleep(0.0001)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, False))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, False))
     time.sleep(0.0001)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.0001)
 
 
-def SlowKeyPress(k):
-    keyCode, shiftKey = toKeyCode(k)
+def slow_key_press(k):
+    key_code, shift_key = to_key_code(k)
 
     time.sleep(0.0001)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, True))
         time.sleep(0.05)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, True))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, True))
     time.sleep(0.05)
 
-    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, keyCode, False))
+    CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, key_code, False))
     time.sleep(0.05)
 
-    if shiftKey:
+    if shift_key:
         CGEventPost(kCGHIDEventTap, CGEventCreateKeyboardEvent(None, 0x38, False))
         time.sleep(0.05)    
 
 
 # From http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes
-def toKeyCode(c):
-    shiftKey = False
+def to_key_code(c):
+    shift_key = False
     # Letter
     if c.isalpha():
         if not c.islower():
-            shiftKey = True
+            shift_key = True
             c = c.lower()
 
-    if c in shiftChars:
-        shiftKey = True
-        c = shiftChars[c]
-    if c in keyCodeMap:
-        keyCode = keyCodeMap[c]
+    if c in shift_chars:
+        shift_key = True
+        c = shift_chars[c]
+    if c in key_code_map:
+        key_code = key_code_map[c]
     else:
-        keyCode = ord(c)
-    return keyCode, shiftKey
+        key_code = ord(c)
+    return key_code, shift_key
 
 
-shiftChars = {
+shift_chars = {
     '~': '`',
     '!': '1',
     '@': '2',
@@ -116,7 +116,7 @@ shiftChars = {
 }
 
 
-keyCodeMap = {
+key_code_map = {
     'a'                 : 0x00,
     's'                 : 0x01,
     'd'                 : 0x02,

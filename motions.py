@@ -5,146 +5,146 @@ from datetime import datetime
 def close_app():
     stop()
     time.sleep(1)
-    KeyDown('command')
-    KeyDown('option')
-    KeyDown('shift')
-    KeyDown('esc')
+    key_down('command')
+    key_down('option')
+    key_down('shift')
+    key_down('esc')
     time.sleep(2)
-    KeyUp('command')
-    KeyUp('option')
-    KeyUp('shift')
-    KeyUp('esc')
+    key_up('command')
+    key_up('option')
+    key_up('shift')
+    key_up('esc')
     print 'App closed at ' + str(datetime.now())
 
 
 def quit_game():
     stop()
     time.sleep(1)
-    KeyPress('esc')
+    key_press('esc')
     time.sleep(.1)
-    KeyPress('up')
+    key_press('up')
     time.sleep(.1)
-    KeyPress('\n')
+    key_press('\n')
     time.sleep(3)
 
 
 def say(line):
     stop()
     time.sleep(2)
-    KeyPress('\n')
+    key_press('\n')
     for c in line:
-        KeyPress(c)
-    KeyPress('\n')
-    KeyPress('\n')
+        key_press(c)
+    key_press('\n')
+    key_press('\n')
     time.sleep(.5)
 
 
 def boost():
     time.sleep(.05)
-    SlowKeyPress('`')
+    slow_key_press('`')
     time.sleep(.6)
 
 
 def hyper():
     time.sleep(.05)
-    SlowKeyPress('s')
+    slow_key_press('s')
     time.sleep(.3)
 
 
 def stance():
     time.sleep(.3)
-    SlowKeyPress('end')
+    slow_key_press('end')
     time.sleep(.3)
 
 
 def behold():
     time.sleep(.5)
-    SlowKeyPress('f')
+    slow_key_press('f')
     time.sleep(.3)
 
 
 def speed_pot():
     time.sleep(.03)
-    SlowKeyPress('9')
+    slow_key_press('9')
     time.sleep(.03)
 
 
 def att_pot():
     time.sleep(.03)
-    SlowKeyPress('8')
+    slow_key_press('8')
     time.sleep(.03)
 
 
 def acc_pot():
     time.sleep(.03)
-    SlowKeyPress('7')
+    slow_key_press('7')
     time.sleep(.03)
 
 
 def feed():
     time.sleep(.03)
-    SlowKeyPress('0')
+    slow_key_press('0')
     time.sleep(.03)
 
 
 def jump():
-    KeyPress('command')
+    key_press('command')
 
 
 def long_jump():
-    KeyDown('command')
+    key_down('command')
     time.sleep(.05)
-    KeyUp('command')
+    key_up('command')
 
 
 def turn_left():
-    SlowKeyPress('left')
+    slow_key_press('left')
 
 
 def turn_right():
-    SlowKeyPress('right')
+    slow_key_press('right')
 
 
 def move_left(length=None):
     if length is None:
-        KeyDown('left')
+        key_down('left')
     else:
-        KeyDown('left')
+        key_down('left')
         time.sleep(length)
-        KeyUp('left')
+        key_up('left')
 
 
 def move_right(length=None):
     if length is None:
-        KeyDown('right')
+        key_down('right')
     else:
-        KeyDown('right')
+        key_down('right')
         time.sleep(length)
-        KeyUp('right')
+        key_up('right')
 
 
 def climb():
-    KeyDown('up')
+    key_down('up')
 
 
 def stop_climb():
-    KeyUp('up')
+    key_up('up')
 
 
 def stop():
-    KeyUp('left')
-    KeyUp('right')
-    KeyUp('up')
-    KeyUp('down')
+    key_up('left')
+    key_up('right')
+    key_up('up')
+    key_up('down')
 
 
 def att():
-    KeyPress('a')
+    key_press('a')
     time.sleep(.68)
 
 
 def att2():
-    KeyPress('shift')
+    key_press('shift')
     time.sleep(.68)
 
 
