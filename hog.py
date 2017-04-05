@@ -3,6 +3,14 @@ from motions import *
 import logging
 import sys
 
+"""
+I should have created a character class instead of using these global variables,
+as well as modularized the code more. I was trying to create a working bot quickly
+and didn't take enough time initially to think about code structure. If I were still 
+developing this bot, I would restructure the code with better object-oriented design, 
+but I don't use the bot anymore. That being said, the bot performs very well.
+"""
+
 im = None
 pixels = None
 width, height = 0, 0
