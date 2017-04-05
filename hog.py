@@ -22,7 +22,7 @@ thresholds = [160, 465, 500, 40]   # Speed, att, food, boost
 direction = 'left'
 
 # Logger
-logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger('BOT')
 
 

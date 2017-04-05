@@ -27,7 +27,7 @@ spoken = False
 occupation_time = 0
 
 # Logger
-logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger('BOT')
 
 
